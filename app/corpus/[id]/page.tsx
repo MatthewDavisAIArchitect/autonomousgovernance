@@ -11,8 +11,8 @@ import { GLOSSARY_MAP } from '@/lib/glossary'
 import ArtifactIdPill from '@/components/ui/ArtifactIdPill'
 import GlossaryTooltip from '@/components/GlossaryTooltip'
 
-interface BundleSection { heading: string; body: string }
-interface BundleArtifact { id: string; title: string; type: string; status: string; version: string; sections: BundleSection[] }
+interface BundleSection { ref: string; heading: string; text: string }
+interface BundleArtifact { id: string; title: string; type?: string; status?: string; version?: string; sections: BundleSection[] }
 interface CorpusBundle { artifacts: BundleArtifact[] }
 
 function annotateBody(text: string): React.ReactNode[] {
@@ -48,7 +48,7 @@ function annotateBody(text: string): React.ReactNode[] {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
-  const bundle = bundleData as CorpusBundle
+  const bundle = bundleData as unknown as CorpusBundle
   const artifact = bundle.artifacts.find((a) => a.id === id)
   if (!artifact) return { title: 'Not Found' }
   return { title: artifact.id + ' — ' + artifact.title }
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function CorpusDocumentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   if (!UFTAGP_ID_REGEX.test(id)) notFound()
-  const bundle = bundleData as CorpusBundle
+  const bundle = bundleData as unknown as CorpusBundle
   const artifact = bundle.artifacts.find((a) => a.id === id)
   if (!artifact) notFound()
 
@@ -99,7 +99,7 @@ export default async function CorpusDocumentPage({ params }: { params: Promise<{
                 </h2>
               )}
               <p className="font-serif text-base text-near-black leading-[1.8]">
-                {annotateBody(section.body)}
+                {annotateBody(section.text)}
               </p>
             </section>
           ))}
