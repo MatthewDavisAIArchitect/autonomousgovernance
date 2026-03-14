@@ -1,4 +1,4 @@
-// app/api/navigate/route.ts
+﻿// app/api/navigate/route.ts
 // AMENDED for Batch 4k: citation index injected in system prompt.
 import { NextRequest } from "next/server"
 import Anthropic from "@anthropic-ai/sdk"
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
   const messages = [...history, { role: "user" as const, content: message }]
 
   const stream = await client.messages.stream({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-5-20251001",
     max_tokens: 1000,
     system: systemPrompt,
     messages,
