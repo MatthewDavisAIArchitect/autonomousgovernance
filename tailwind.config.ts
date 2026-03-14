@@ -27,7 +27,6 @@ const config: Config = {
       },
     },
   },
-  safelist: ["ml-52", "w-52"],
   plugins: [require("@tailwindcss/typography")],
 };
 
