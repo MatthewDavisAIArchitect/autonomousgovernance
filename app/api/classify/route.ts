@@ -1,4 +1,5 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+﻿export const dynamic = "force-dynamic"
+import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import bundleData from "@/data/corpus-bundle.json";

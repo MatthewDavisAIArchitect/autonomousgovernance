@@ -1,4 +1,5 @@
 ﻿// app/api/navigate/route.ts
+export const dynamic = "force-dynamic"
 // AMENDED for Batch 4k: citation index injected in system prompt.
 import { NextRequest } from "next/server"
 import Anthropic from "@anthropic-ai/sdk"
