@@ -49,22 +49,22 @@ function ArtifactRow({ artifact }: { artifact: Artifact }) {
         {artifact.title}
       </span>
 
-      {/* Type badge */}
-      <span className="font-mono text-xs text-mid-grey whitespace-nowrap">
-        {artifact.type}
-      </span>
-
-      {/* Status badge */}
-      <span
-        className={[
-          'font-sans text-xs whitespace-nowrap',
-          artifact.status === 'CANONICAL'
-            ? 'text-near-black'
-            : 'text-mid-grey',
-        ].join(' ')}
-      >
-        {artifact.status}
-      </span>
+      {/* Type + Status badges — wrapped to guarantee visible gap between them */}
+      <div className="flex items-baseline gap-3 ml-auto flex-shrink-0">
+        <span className="font-mono text-xs text-mid-grey whitespace-nowrap">
+          {artifact.type}
+        </span>
+        <span
+          className={[
+            'font-sans text-xs whitespace-nowrap',
+            artifact.status === 'CANONICAL'
+              ? 'text-near-black'
+              : 'text-mid-grey',
+          ].join(' ')}
+        >
+          {artifact.status}
+        </span>
+      </div>
 
       {/* DOI link — only when present */}
       {artifact.zenodoDoi && (
@@ -119,7 +119,7 @@ export default function ArtifactGrid({ artifacts: propArtifacts, isLoading: prop
     return () => { cancelled = true }
   }, [propArtifacts, propLoading])
 
-  // ── Loading state: skeleton rows, no spinner ────────────────────────────
+  // ── Loading state: skeleton rows, no spinner ──────────────────────────────
   if (loading) {
     return (
       <div>
@@ -130,7 +130,7 @@ export default function ArtifactGrid({ artifacts: propArtifacts, isLoading: prop
     )
   }
 
-  // ── Error state ──────────────────────────────────────────────────────────
+  // ── Error state ───────────────────────────────────────────────────────────
   if (error) {
     return (
       <p className="font-sans text-sm text-mid-grey py-4">
@@ -139,7 +139,7 @@ export default function ArtifactGrid({ artifacts: propArtifacts, isLoading: prop
     )
   }
 
-  // ── Empty state ──────────────────────────────────────────────────────────
+  // ── Empty state ───────────────────────────────────────────────────────────
   if (artifacts.length === 0) {
     return (
       <p className="font-sans text-sm text-mid-grey py-4">
