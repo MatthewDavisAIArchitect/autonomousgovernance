@@ -1,4 +1,4 @@
-﻿require("dotenv").config({ path: ".env.local" });
+require("dotenv").config({ path: ".env.local" });
 // @ts-ignore
 import { GoogleAuth } from "google-auth-library";
 import * as fs from "fs";
@@ -6,6 +6,22 @@ import * as path from "path";
 
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID!;
 const SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON!);
+
+// ── Canonical title map — overrides Drive folder/file names ──────────────────
+const TITLE_MAP: Record<string, string> = {
+  "UFTAGP-SPEC-001": "Governing Specification",
+  "UFTAGP-COI-001": "Conservation of Intent — Volume I: Axioms, Invariants + Admissibility",
+  "UFTAGP-COI-002": "Conservation of Intent — Volume II: Intent-Domain Ontology + Transformational Relations",
+  "UFTAGP-COI-003": "Conservation of Intent — Volume III: Interpretation Saturation and Limits",
+};
+
+// ── Version map ───────────────────────────────────────────────────────────────
+const VERSION_MAP: Record<string, string> = {
+  "UFTAGP-SPEC-001": "1.6",
+  "UFTAGP-COI-001": "1.0",
+  "UFTAGP-COI-002": "1.0",
+  "UFTAGP-COI-003": "1.0",
+};
 
 async function getAuthToken(): Promise<string> {
   const auth = new GoogleAuth({
@@ -48,7 +64,7 @@ function parseArtifactId(filename: string): string | null {
 
 function chunkBySections(text: string): { ref: string; heading: string; text: string }[] {
   const lines = text.split("\n");
-  const sections: { ref: string; heading: string; text: string }[] = [];
+  const sections: { ref: string; heading: string; lines: string[] }[] = [];
   let current: { ref: string; heading: string; lines: string[] } = { ref: "intro", heading: "Introduction", lines: [] };
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -98,8 +114,21 @@ async function main() {
     console.log(`  Extracted ${text.length} characters`);
     const sections = chunkBySections(text);
     console.log(`  Found ${sections.length} sections`);
-    artifacts.push({ id: artifactId, title: file.name.replace(artifactId + "_", ""), sections });
-    manifest.push({ id: artifactId, title: file.name.replace(artifactId + "_", ""), type: artifactId.split("-")[1], status: "CANONICAL", version: "1.0", canonical: true, zenodoDoi: null });
+
+    // Use canonical title from map, fall back to filename-derived title
+    const title = TITLE_MAP[artifactId] ?? file.name.replace(artifactId + "_", "").replace(/-/g, " ");
+    const version = VERSION_MAP[artifactId] ?? "1.0";
+
+    artifacts.push({ id: artifactId, title, sections });
+    manifest.push({
+      id: artifactId,
+      title,
+      type: artifactId.split("-")[1],
+      status: "CANONICAL",
+      version,
+      canonical: true,
+      zenodoDoi: null,
+    });
   }
 
   fs.writeFileSync(path.join("data", "corpus-bundle.json"), JSON.stringify({ artifacts }, null, 2));
