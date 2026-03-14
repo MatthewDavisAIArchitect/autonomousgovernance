@@ -1,110 +1,91 @@
-// app/corpus/[id]/page.tsx
-// Dynamic corpus document reader.
-// ANTI-PATTERN GUARD: corpus-bundle.json loaded via static import only.
-// 404 if id fails UFTAGP_ID_REGEX or artifact not found in bundle.
+﻿import { notFound } from "next/navigation"
+import type { Metadata } from "next"
+import ArtifactIdPill from "@/components/ui/ArtifactIdPill"
+import GlossaryTooltip from "@/components/GlossaryTooltip"
+import { GLOSSARY_TERMS as glossaryTerms } from "@/lib/glossary"
+import { UFTAGP_ID_REGEX } from "@/lib/constants"
+import bundleData from "@/data/corpus-bundle.json"
 
-import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
-import bundleData from '@/data/corpus-bundle.json'
-import { UFTAGP_ID_REGEX } from '@/lib/constants'
-import { GLOSSARY_MAP } from '@/lib/glossary'
-import ArtifactIdPill from '@/components/ui/ArtifactIdPill'
-import GlossaryTooltip from '@/components/GlossaryTooltip'
+interface Props { params: Promise<{ id: string }> }
 
-interface BundleSection { ref: string; heading: string; text: string }
-interface BundleArtifact { id: string; title: string; type?: string; status?: string; version?: string; sections: BundleSection[] }
-interface CorpusBundle { artifacts: BundleArtifact[] }
-
-function annotateBody(text: string): React.ReactNode[] {
-  const terms = Object.keys(GLOSSARY_MAP)
-  if (terms.length === 0) return [text]
-  const sorted = [...terms].sort((a, b) => b.length - a.length)
-  let segments: Array<string | React.ReactNode> = [text]
-  for (const termStr of sorted) {
-    const next: Array<string | React.ReactNode> = []
-    for (const seg of segments) {
-      if (typeof seg !== 'string') { next.push(seg); continue }
-      const parts = seg.split(termStr)
-      for (let i = 0; i < parts.length; i++) {
-        if (parts[i]) next.push(parts[i])
-        if (i < parts.length - 1) {
-          const t = GLOSSARY_MAP[termStr]
-          next.push(
-            <GlossaryTooltip
-              key={termStr + '-' + i + '-' + Math.random()}
-              term={t.term}
-              definition={t.definition}
-              artifactId={t.artifactId}
-              section={t.section}
-            />
-          )
-        }
-      }
-    }
-    segments = next
-  }
-  return segments as React.ReactNode[]
-}
-
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
-  const bundle = bundleData as unknown as CorpusBundle
-  const artifact = bundle.artifacts.find((a) => a.id === id)
-  if (!artifact) return { title: 'Not Found' }
-  return { title: artifact.id + ' — ' + artifact.title }
+  const artifact = (bundleData.artifacts as any[]).find((a) => a.id === id)
+  if (!artifact) return {}
+  return {
+    title: `${artifact.title} — UFTAGP`,
+    description: `${artifact.id} · Canonical doctrine volume. Canonical; non-prescriptive; classification-only.`,
+    openGraph: { title: artifact.title, description: `Canonical doctrine volume. ${artifact.id}. UFTAGP Research Site.`, url: `https://autonomousgovernance.org/corpus/${artifact.id}`, type: "article" },
+  }
 }
 
-export default async function CorpusDocumentPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CorpusDocumentPage({ params }: Props) {
   const { id } = await params
   if (!UFTAGP_ID_REGEX.test(id)) notFound()
-  const bundle = bundleData as unknown as CorpusBundle
-  const artifact = bundle.artifacts.find((a) => a.id === id)
+  const artifact = (bundleData.artifacts as any[]).find((a) => a.id === id)
   if (!artifact) notFound()
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": artifact.title,
+    "author": { "@type": "Person", "name": "Matthew A. Davis" },
+    "publisher": { "@type": "Organization", "name": "UFTAGP Research Site", "url": "https://autonomousgovernance.org" },
+    "url": `https://autonomousgovernance.org/corpus/${artifact.id}`,
+    "identifier": artifact.id,
+    "version": artifact.version ?? "1.0",
+    "description": "Canonical; non-prescriptive; classification-only doctrine volume.",
+    "license": "https://autonomousgovernance.org/about",
+    "isPartOf": { "@type": "Book", "name": "Conservation of Intent trilogy", "author": { "@type": "Person", "name": "Matthew A. Davis" } }
+  }
+
+  function renderWithTooltips(text: string) {
+    const parts: React.ReactNode[] = []
+    let remaining = text
+    let key = 0
+    for (const term of glossaryTerms) {
+      const idx = remaining.toLowerCase().indexOf(term.term.toLowerCase())
+      if (idx === -1) continue
+      if (idx > 0) parts.push(<span key={key++}>{remaining.slice(0, idx)}</span>)
+      parts.push(<GlossaryTooltip key={key++} term={term.term} definition={term.definition} artifactId={term.artifactId} section={term.section} />)
+      remaining = remaining.slice(idx + term.term.length)
+    }
+    if (remaining) parts.push(<span key={key++}>{remaining}</span>)
+    return parts.length > 0 ? parts : text
+  }
+
   return (
-    <div className="max-w-5xl mx-auto px-8 py-16">
-      <header className="border-b border-rule-grey pb-8 mb-10">
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 mb-3">
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-baseline gap-4 mb-2">
           <ArtifactIdPill id={artifact.id} />
-          <span className="font-mono text-xs text-mid-grey">{artifact.type}</span>
           <span className="font-mono text-xs text-mid-grey">{artifact.status}</span>
-          <span className="font-mono text-xs text-mid-grey">v{artifact.version}</span>
+          {artifact.version && <span className="font-mono text-xs text-mid-grey">v{artifact.version}</span>}
         </div>
-        <h1 className="font-serif text-2xl text-near-black leading-snug">{artifact.title}</h1>
-      </header>
-      <div className="flex gap-12">
-        {artifact.sections.length > 0 && (
-          <nav className="hidden md:block w-48 shrink-0 self-start sticky top-8" aria-label="Document sections">
-            <p className="font-sans text-xs font-medium text-mid-grey tracking-widest uppercase mb-3">Sections</p>
-            <ol className="space-y-1">
-              {artifact.sections.map((section, i) => (
-                <li key={i}>
-                  <a href={'#section-' + i} className="font-sans text-xs text-mid-grey hover:text-accent transition-colors block leading-snug py-0.5">
-                    {section.heading || '§ ' + (i + 1)}
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        )}
-        <article className="flex-1 min-w-0">
-          {artifact.sections.length === 0 && (
-            <p className="font-sans text-sm text-mid-grey">No sections available.</p>
+        <h1 className="font-serif text-2xl text-near-black mb-6 pb-4 border-b border-rule-grey">{artifact.title}</h1>
+        <div className="flex gap-10">
+          {artifact.sections?.length > 0 && (
+            <aside className="w-40 shrink-0">
+              <p className="font-sans text-xs text-mid-grey tracking-widest uppercase mb-3">Sections</p>
+              <ul className="space-y-1">
+                {artifact.sections.map((s: any, i: number) => (
+                  <li key={i}><a href={`#section-${i}`} className="font-mono text-xs text-mid-grey hover:text-accent block py-0.5">{s.ref || s.heading?.slice(0, 20) || `Section ${i + 1}`}</a></li>
+                ))}
+              </ul>
+            </aside>
           )}
-          {artifact.sections.map((section, i) => (
-            <section key={i} id={'section-' + i} className="mb-10 scroll-mt-8">
-              {section.heading && (
-                <h2 className="font-serif text-lg text-near-black mb-3 pb-2 border-b border-rule-grey">
-                  {section.heading}
-                </h2>
-              )}
-              <p className="font-serif text-base text-near-black leading-[1.8]">
-                {annotateBody(section.text)}
-              </p>
-            </section>
-          ))}
-        </article>
+          <div className="flex-1 min-w-0">
+            {artifact.sections?.map((s: any, i: number) => (
+              <div key={i} id={`section-${i}`} className="mb-8">
+                {s.heading && <h2 className="font-serif text-lg text-near-black mb-3">{s.heading}</h2>}
+                <p className="font-serif text-sm text-near-black leading-relaxed whitespace-pre-wrap">{renderWithTooltips(s.text ?? "")}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
+

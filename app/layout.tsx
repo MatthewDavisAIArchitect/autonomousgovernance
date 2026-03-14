@@ -1,10 +1,19 @@
 ﻿import type { Metadata } from "next";
 import "./globals.css";
+
 export const metadata: Metadata = {
   title: "The Unified Field Theory of Autonomous Governance Project",
-  description:
-    "Governance doctrine for autonomous systems, anchored in the Conservation of Intent framework.",
+  description: "Governance doctrine for autonomous systems, anchored in the Conservation of Intent framework. Canonical; non-prescriptive; classification-only.",
+  metadataBase: new URL("https://autonomousgovernance.org"),
+  openGraph: {
+    title: "The Unified Field Theory of Autonomous Governance Project",
+    description: "Governance doctrine for autonomous systems, anchored in the Conservation of Intent framework. Canonical; non-prescriptive; classification-only.",
+    url: "https://autonomousgovernance.org",
+    siteName: "UFTAGP Research Site",
+    type: "website",
+  },
 };
+
 export default function RootLayout({
   children,
 }: {
@@ -28,7 +37,7 @@ export default function RootLayout({
             <li><a href="/navigator"   className="block text-sm text-near-black hover:text-accent py-1">Navigate</a></li>
             <li><a href="/glossary"    className="block text-sm text-near-black hover:text-accent py-1">Glossary</a></li>
             <li><a href="/constraints" className="block text-sm text-near-black hover:text-accent py-1">Constraints</a></li>
-            <li><a href="/citations"    className="block text-sm text-near-black hover:text-accent py-1">Citations</a></li>
+            <li><a href="/citations"   className="block text-sm text-near-black hover:text-accent py-1">Citations</a></li>
             <li><a href="/contribute"  className="block text-sm text-near-black hover:text-accent py-1">Contribute</a></li>
             <li><a href="/about"       className="block text-sm text-near-black hover:text-accent py-1">About</a></li>
           </ul>
@@ -40,4 +49,3 @@ export default function RootLayout({
     </html>
   );
 }
-
