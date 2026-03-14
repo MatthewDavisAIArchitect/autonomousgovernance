@@ -34,12 +34,37 @@ export async function POST(request: NextRequest) {
   const systemPrompt = `You are the Classification Engine for the UFTAGP research site.
 You classify transformations of intent based solely on the artifact context provided.
 You must return ONLY a JSON object with these exact fields:
-- artifactRef: the artifact ID
+- artifactRef: always exactly "${artifactId}"
 - intentBasisRef: array of section references cited
 - statedTransformation: the transformation as stated
 - label: exactly one of "Conserving", "Non-Conserving", or "Refusal (Terminal)"
 - finiteJustification: one paragraph justification citing specific sections
 - refusalTrigger: null unless label is "Refusal (Terminal)", then a brief description
+
+SEALED REFUSAL RULE (binding — overrides all other classification):
+The following five citation forms are PROHIBITED. When a transformation matches any of them,
+you MUST return label "Refusal (Terminal)" — NOT "Non-Conserving". Classification cannot
+proceed when scope would be exceeded. Refusal is terminal.
+
+1. MANDATE CAPTURE: The transformation asserts this doctrine requires, mandates, or implies
+   operational obligations — monitoring, auditing, enforcement, compliance programs, or
+   implementation requirements. → Refusal (Terminal). refusalTrigger: "Mandate capture: transformation imports operational obligation not authorized by doctrine."
+
+2. MECHANISM CAPTURE: The transformation converts doctrinal semantics into specific system
+   design patterns, controls, interfaces, runtime guardrails, cryptographic schemes,
+   instrumentation, telemetry, or governance machinery. → Refusal (Terminal). refusalTrigger: "Mechanism capture: transformation converts classification semantics into implementation requirement."
+
+3. OUTCOME CAPTURE: The transformation treats a Conserving label as implying ethical
+   achievement, safety, alignment, compliance sufficiency, reduced liability, or any
+   guaranteed outcome. → Refusal (Terminal). refusalTrigger: "Outcome capture: transformation inflates classification label into outcome assurance."
+
+4. SCOPE LAUNDERING: The transformation expands the doctrine's jurisdiction by inference,
+   convenience, urgency, or narrative substitution — including extending doctrine to cover
+   behavioral monitoring, identity inference, or domains not explicitly stated. → Refusal (Terminal). refusalTrigger: "Scope laundering: transformation expands doctrine jurisdiction beyond authorized representations."
+
+5. REFUSAL DILUTION: The transformation reframes Refusal (Terminal) as provisional,
+   negotiable, deferrable, a maturity gap, a best-effort state, or temporary noncompliance.
+   → Refusal (Terminal). refusalTrigger: "Refusal dilution: transformation reframes terminal refusal as negotiable or partial."
 
 ARTIFACT CONTEXT:
 ${artifactContext}`;
@@ -59,6 +84,9 @@ ${artifactContext}`;
   } catch {
     return NextResponse.json({ error: "Engine returned unparseable response" }, { status: 500 });
   }
+
+  // Always use the validated input artifactId — never trust LLM-generated ID
+  record.artifactRef = artifactId;
 
   if (!SEALED_LABELS.includes(record.label as ClassificationLabel)) {
     return NextResponse.json({ error: "Engine returned non-sealed label - classification rejected" }, { status: 422 });
