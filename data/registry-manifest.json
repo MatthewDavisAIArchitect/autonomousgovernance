@@ -2,16 +2,16 @@
   "artifacts": [
     {
       "id": "UFTAGP-SPEC-001",
-      "title": "Governing-Spec",
+      "title": "Governing Specification",
       "type": "SPEC",
       "status": "CANONICAL",
-      "version": "1.0",
+      "version": "1.6",
       "canonical": true,
       "zenodoDoi": null
     },
     {
       "id": "UFTAGP-COI-003",
-      "title": "Vol-III-Doctrine",
+      "title": "Conservation of Intent — Volume III: Interpretation Saturation and Limits",
       "type": "COI",
       "status": "CANONICAL",
       "version": "1.0",
@@ -20,7 +20,7 @@
     },
     {
       "id": "UFTAGP-COI-002",
-      "title": "Vol-II-Doctrine",
+      "title": "Conservation of Intent — Volume II: Intent-Domain Ontology + Transformational Relations",
       "type": "COI",
       "status": "CANONICAL",
       "version": "1.0",
@@ -29,7 +29,7 @@
     },
     {
       "id": "UFTAGP-COI-001",
-      "title": "Vol-I-Doctrine",
+      "title": "Conservation of Intent — Volume I: Axioms, Invariants + Admissibility",
       "type": "COI",
       "status": "CANONICAL",
       "version": "1.0",
