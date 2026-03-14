@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
   const messages = [...history, { role: "user" as const, content: message }]
 
   const stream = await client.messages.stream({
-    model: "claude-sonnet-4-5-20251001",
+    model: "claude-3-5-sonnet-20241022",
     max_tokens: 1000,
     system: systemPrompt,
     messages,
