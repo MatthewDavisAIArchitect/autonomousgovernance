@@ -46,61 +46,67 @@ function buildCorpusText(path: ReadingPath): string {
 }
 
 export async function POST(request: NextRequest) {
-  const { message, path, history } = await request.json()
+  try {
+    const { message, path, history } = await request.json()
 
-  const corpusText = buildCorpusText(path as ReadingPath)
-  const citationIndex = await fetchCitationIndex()
-  const citationIndexJson = JSON.stringify(citationIndex)
+    const corpusText = buildCorpusText(path as ReadingPath)
+    const citationIndex = await fetchCitationIndex()
+    const citationIndexJson = JSON.stringify(citationIndex)
 
-  const corpusTokens = Math.round(corpusText.length / 4)
-  const citationTokens = Math.round(citationIndexJson.length / 4)
-  console.log("[navigate] tokens: corpus=" + corpusTokens + " citations=" + citationTokens)
-  if (citationTokens > 5_000) {
-    console.warn("[navigate] ALERT: citation index tokens " + citationTokens + " > 5000")
-  }
+    const systemLines = [
+      "You are the corpus navigation instrument for the Unified Field Theory of Autonomous Governance Project (UFTAGP).",
+      "Site jurisdiction: UFTAGP Posture B. This site derives authority from its instrument design, not from external institutional endorsement.",
+      "You have access to the full UFTAGP corpus below. Answer questions by citing artifact ID and section reference.",
+      "If a question exceeds what the corpus authorizes, state that the corpus does not address this - do not improvise.",
+      "Do not make claims beyond what the corpus explicitly states.",
+      "",
+      "COMMUNITY CITATION INDEX (section_ref -> [zenodo_ids]):",
+      citationIndexJson,
+      "",
+      "CORPUS:",
+      corpusText,
+    ]
+    const systemPrompt = systemLines.join("\n")
 
-  const systemLines = [
-    "You are the corpus navigation instrument for the Unified Field Theory of Autonomous Governance Project (UFTAGP).",
-    "Site jurisdiction: UFTAGP Posture B. This site derives authority from its instrument design, not from external institutional endorsement.",
-    "You have access to the full UFTAGP corpus below. Answer questions by citing artifact ID and section reference.",
-    "If a question exceeds what the corpus authorizes, state that the corpus does not address this - do not improvise.",
-    "Do not make claims beyond what the corpus explicitly states.",
-    "",
-    "COMMUNITY CITATION INDEX (section_ref -> [zenodo_ids]):",
-    citationIndexJson,
-    "",
-    "CORPUS:",
-    corpusText,
-  ]
-  const systemPrompt = systemLines.join("\n")
+    const messages = [...history, { role: "user" as const, content: message }]
 
-  const messages = [...history, { role: "user" as const, content: message }]
+    const stream = await client.messages.stream({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages,
+    })
 
-  const stream = await client.messages.stream({
-    model: "claude-3-5-sonnet-20241022",
-    max_tokens: 1000,
-    system: systemPrompt,
-    messages,
-  })
-
-  const encoder = new TextEncoder()
-  const readable = new ReadableStream({
-    async start(controller) {
-      for await (const chunk of stream) {
-        if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
-          controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "token", text: chunk.delta.text }) + "\n\n"))
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
+              controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "token", text: chunk.delta.text }) + "\n\n"))
+            }
+          }
+          controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "done" }) + "\n\n"))
+        } catch (e) {
+          controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "error", text: String(e) }) + "\n\n"))
+        } finally {
+          controller.close()
         }
-      }
-      controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "done" }) + "\n\n"))
-      controller.close()
-    },
-  })
+      },
+    })
 
-  return new Response(readable, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-    },
-  })
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    })
+  } catch (e) {
+    console.error("[navigate] error:", e)
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    })
+  }
 }
