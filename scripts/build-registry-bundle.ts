@@ -64,8 +64,11 @@ function parseArtifactId(filename: string): string | null {
 
 function chunkBySections(text: string): { ref: string; heading: string; text: string }[] {
   const lines = text.split("\n");
-  const sections: { ref: string; heading: string; lines: string[] }[] = [];
-  let current: { ref: string; heading: string; lines: string[] } = { ref: "intro", heading: "Introduction", lines: [] };
+  const sections: { ref: string; heading: string; text: string }[] = [];
+  let currentRef = "intro";
+  let currentHeading = "Introduction";
+  let currentLines: string[] = [];
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     const nextLine = lines[i + 1]?.trim() || "";
@@ -73,24 +76,29 @@ function chunkBySections(text: string): { ref: string; heading: string; text: st
     const isSectionRef = line.match(/^(S[\d\.]+)\s+.{3,}/);
     const isShortCaps = line.length > 3 && line.length < 80 && line === line.toUpperCase() && line.match(/[A-Z]{3,}/);
     const isHeading = isMarkdownHeader || isSectionRef || (isShortCaps && nextLine === "");
+
     if (isHeading) {
-      if (current.lines.length > 0) {
-        sections.push({ ref: current.ref, heading: current.heading, text: current.lines.join("\n").trim() });
+      if (currentLines.length > 0) {
+        sections.push({ ref: currentRef, heading: currentHeading, text: currentLines.join("\n").trim() });
       }
       const heading = (isMarkdownHeader ? isMarkdownHeader[1] : line).trim();
       const refMatch = heading.match(/(S[\d\.]+)/);
-      const ref = refMatch ? refMatch[1] : heading.substring(0, 20);
-      current = { ref, heading, lines: [] };
+      currentRef = refMatch ? refMatch[1] : heading.substring(0, 20);
+      currentHeading = heading;
+      currentLines = [];
     } else {
-      current.lines.push(lines[i]);
+      currentLines.push(lines[i]);
     }
   }
-  if (current.lines.length > 0) {
-    sections.push({ ref: current.ref, heading: current.heading, text: current.lines.join("\n").trim() });
+
+  if (currentLines.length > 0) {
+    sections.push({ ref: currentRef, heading: currentHeading, text: currentLines.join("\n").trim() });
   }
+
   if (sections.length === 0) {
     sections.push({ ref: "full", heading: "Full Text", text: text.trim() });
   }
+
   return sections;
 }
 
@@ -115,7 +123,6 @@ async function main() {
     const sections = chunkBySections(text);
     console.log(`  Found ${sections.length} sections`);
 
-    // Use canonical title from map, fall back to filename-derived title
     const title = TITLE_MAP[artifactId] ?? file.name.replace(artifactId + "_", "").replace(/-/g, " ");
     const version = VERSION_MAP[artifactId] ?? "1.0";
 
