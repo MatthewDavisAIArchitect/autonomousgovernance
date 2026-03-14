@@ -1,8 +1,25 @@
-﻿@import url('https://fonts.bunny.net/css?family=source-serif-4:400,700|jetbrains-mono:400,700|inter:400,500,600');
+@import url('https://fonts.bunny.net/css?family=source-serif-4:400,700|jetbrains-mono:400,700|inter:400,500,600');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  /* Colors */
+  --color-near-black: #0F0F0F;
+  --color-off-white: #F5F4F0;
+  --color-mid-grey: #6B6B6B;
+  --color-rule-grey: #CCCCCC;
+  --color-accent: #2C4A7C;
+  --color-id-bg: #E8EDF5;
+  /* SEALED — use only in ClassificationLabel component */
+  --color-label-conserving: #4A7C59;
+  --color-label-non-conserving: #B5651D;
+  --color-label-refusal: #8B2020;
+
+  /* Font families */
+  --font-serif: "Source Serif 4", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Inter", sans-serif;
+}
 
 html {
   background-color: #F5F4F0;
