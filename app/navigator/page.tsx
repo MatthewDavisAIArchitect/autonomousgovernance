@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 // app/navigator/page.tsx
 // ANTI-PATTERN GUARD: Navigator scoped refusals use font-serif italic text-mid-grey NOT label-refusal (INV-02).
 // ANTI-PATTERN GUARD: Session history in React state only.
@@ -26,7 +26,7 @@ const PATH_DESCRIPTIONS: Record<string, string> = {
   axiom: "Step-by-step trace from axioms through invariants to classification",
 }
 
-// ── Inline segment parser — splits text on UFTAGP IDs ────────────────────────
+// â”€â”€ Inline segment parser â€” splits text on UFTAGP IDs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function parseSegments(text: string): Array<{ type: "text" | "id"; value: string }> {
   const pattern = /UFTAGP-[A-Z]{2,4}-\d{3}/g
   const parts: Array<{ type: "text" | "id"; value: string }> = []
@@ -41,7 +41,7 @@ function parseSegments(text: string): Array<{ type: "text" | "id"; value: string
   return parts
 }
 
-// ── Render a single inline text segment with bold/italic ─────────────────────
+// â”€â”€ Render a single inline text segment with bold/italic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function InlineText({ text }: { text: string }) {
   // Process **bold** and *italic* inline
   const parts: React.ReactNode[] = []
@@ -62,7 +62,7 @@ function InlineText({ text }: { text: string }) {
   return <>{parts}</>
 }
 
-// ── Render a line with artifact ID pills and inline markdown ─────────────────
+// â”€â”€ Render a line with artifact ID pills and inline markdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function InlineLine({ text }: { text: string }) {
   const segments = parseSegments(text)
   return (
@@ -76,7 +76,7 @@ function InlineLine({ text }: { text: string }) {
   )
 }
 
-// ── Markdown block renderer ───────────────────────────────────────────────────
+// â”€â”€ Markdown block renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MarkdownContent({ text, isRefusal }: { text: string; isRefusal?: boolean }) {
   if (isRefusal) {
     return (
@@ -94,7 +94,7 @@ function MarkdownContent({ text, isRefusal }: { text: string; isRefusal?: boolea
   while (i < lines.length) {
     const line = lines[i]
 
-    // Blank line — skip
+    // Blank line â€” skip
     if (line.trim() === "") { i++; continue }
 
     // Numbered list item: "1. text"
@@ -166,6 +166,7 @@ export default function NavigatorPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [streaming, setStreaming] = useState(false)
+  const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }) }, [messages])
@@ -178,6 +179,7 @@ export default function NavigatorPage() {
     const newHistory = [...useHistory, userMsg]
     setMessages(newHistory)
     setInput("")
+    setLoading(false)
     setStreaming(true)
 
     let assistantText = ""
@@ -220,6 +222,7 @@ export default function NavigatorPage() {
     } catch {
       setMessages([...newHistory, { role: "assistant", content: "Stream error." }])
     } finally {
+      setLoading(false)
       setStreaming(false)
     }
   }
@@ -250,7 +253,7 @@ export default function NavigatorPage() {
       <div className="flex items-baseline gap-4 pb-4 border-b border-rule-grey mb-4 shrink-0">
         <h1 className="font-serif text-lg text-near-black">{PATH_LABELS[activePath]}</h1>
         <button onClick={() => { setActivePath(null); setMessages([]) }} className="font-sans text-xs text-mid-grey hover:text-accent">
-          ← paths
+          â† paths
         </button>
       </div>
 
@@ -263,6 +266,12 @@ export default function NavigatorPage() {
             }
           </div>
         ))}
+        {loading && (
+          <div className="flex items-center gap-2">
+            <span className="font-serif italic text-sm text-mid-grey">Consulting corpus</span>
+            <span className="font-mono text-xs text-mid-grey animate-pulse">···</span>
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
 
