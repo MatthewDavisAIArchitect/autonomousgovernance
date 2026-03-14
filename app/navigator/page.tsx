@@ -26,7 +26,8 @@ const PATH_DESCRIPTIONS: Record<string, string> = {
   axiom: "Step-by-step trace from axioms through invariants to classification",
 }
 
-function MessageContent({ text, isRefusal }: { text: string; isRefusal?: boolean }) {
+// ── Inline segment parser — splits text on UFTAGP IDs ────────────────────────
+function parseSegments(text: string): Array<{ type: "text" | "id"; value: string }> {
   const pattern = /UFTAGP-[A-Z]{2,4}-\d{3}/g
   const parts: Array<{ type: "text" | "id"; value: string }> = []
   let last = 0
@@ -37,16 +38,127 @@ function MessageContent({ text, isRefusal }: { text: string; isRefusal?: boolean
     last = m.index + m[0].length
   }
   if (last < text.length) parts.push({ type: "text", value: text.slice(last) })
+  return parts
+}
 
+// ── Render a single inline text segment with bold/italic ─────────────────────
+function InlineText({ text }: { text: string }) {
+  // Process **bold** and *italic* inline
+  const parts: React.ReactNode[] = []
+  const pattern = /(\*\*(.+?)\*\*|\*(.+?)\*)/g
+  let last = 0
+  let m: RegExpExecArray | null
+  let key = 0
+  while ((m = pattern.exec(text)) !== null) {
+    if (m.index > last) parts.push(<span key={key++}>{text.slice(last, m.index)}</span>)
+    if (m[0].startsWith("**")) {
+      parts.push(<strong key={key++} className="font-semibold">{m[2]}</strong>)
+    } else {
+      parts.push(<em key={key++}>{m[3]}</em>)
+    }
+    last = m.index + m[0].length
+  }
+  if (last < text.length) parts.push(<span key={key++}>{text.slice(last)}</span>)
+  return <>{parts}</>
+}
+
+// ── Render a line with artifact ID pills and inline markdown ─────────────────
+function InlineLine({ text }: { text: string }) {
+  const segments = parseSegments(text)
   return (
-    <span className={isRefusal ? "font-serif italic text-mid-grey text-sm" : "font-serif text-sm text-near-black leading-relaxed"}>
-      {parts.map((p, i) =>
-        p.type === "id"
-          ? <ArtifactIdPill key={i} id={p.value} />
-          : <span key={i}>{p.value}</span>
+    <>
+      {segments.map((seg, i) =>
+        seg.type === "id"
+          ? <ArtifactIdPill key={i} id={seg.value} />
+          : <InlineText key={i} text={seg.value} />
       )}
-    </span>
+    </>
   )
+}
+
+// ── Markdown block renderer ───────────────────────────────────────────────────
+function MarkdownContent({ text, isRefusal }: { text: string; isRefusal?: boolean }) {
+  if (isRefusal) {
+    return (
+      <span className="font-serif italic text-mid-grey text-sm">
+        <InlineLine text={text} />
+      </span>
+    )
+  }
+
+  const lines = text.split("\n")
+  const nodes: React.ReactNode[] = []
+  let i = 0
+  let key = 0
+
+  while (i < lines.length) {
+    const line = lines[i]
+
+    // Blank line — skip
+    if (line.trim() === "") { i++; continue }
+
+    // Numbered list item: "1. text"
+    if (/^\d+\.\s/.test(line)) {
+      const listItems: React.ReactNode[] = []
+      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
+        const content = lines[i].replace(/^\d+\.\s/, "")
+        listItems.push(
+          <li key={i} className="mb-1">
+            <InlineLine text={content} />
+          </li>
+        )
+        i++
+      }
+      nodes.push(
+        <ol key={key++} className="list-decimal list-inside space-y-1 my-2 font-serif text-sm text-near-black leading-relaxed">
+          {listItems}
+        </ol>
+      )
+      continue
+    }
+
+    // Bullet list item: "- text" or "* text"
+    if (/^[-*]\s/.test(line)) {
+      const listItems: React.ReactNode[] = []
+      while (i < lines.length && /^[-*]\s/.test(lines[i])) {
+        const content = lines[i].replace(/^[-*]\s/, "")
+        listItems.push(
+          <li key={i} className="mb-1">
+            <InlineLine text={content} />
+          </li>
+        )
+        i++
+      }
+      nodes.push(
+        <ul key={key++} className="list-disc list-inside space-y-1 my-2 font-serif text-sm text-near-black leading-relaxed">
+          {listItems}
+        </ul>
+      )
+      continue
+    }
+
+    // Heading: "## text"
+    if (/^#{1,3}\s/.test(line)) {
+      const content = line.replace(/^#{1,3}\s/, "")
+      nodes.push(
+        <p key={key++} className="font-serif text-sm font-semibold text-near-black mt-3 mb-1">
+          <InlineLine text={content} />
+        </p>
+      )
+      i++
+      continue
+    }
+
+    // Regular paragraph
+    nodes.push(
+      <p key={key++} className="font-serif text-sm text-near-black leading-relaxed mb-2">
+        <InlineLine text={line} />
+      </p>
+    )
+    i++
+  }
+
+  return <>{nodes}</>
 }
 
 export default function NavigatorPage() {
@@ -147,7 +259,7 @@ export default function NavigatorPage() {
           <div key={i} className={m.role === "user" ? "pl-8" : ""}>
             {m.role === "user"
               ? <p className="font-sans text-sm text-mid-grey">{m.content}</p>
-              : <MessageContent text={m.content} isRefusal={m.isRefusal} />
+              : <MarkdownContent text={m.content} isRefusal={m.isRefusal} />
             }
           </div>
         ))}
