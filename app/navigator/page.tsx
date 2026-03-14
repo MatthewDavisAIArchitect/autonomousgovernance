@@ -26,7 +26,6 @@ const PATH_DESCRIPTIONS: Record<string, string> = {
   axiom: "Step-by-step trace from axioms through invariants to classification",
 }
 
-// â”€â”€ Inline segment parser â€” splits text on UFTAGP IDs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function parseSegments(text: string): Array<{ type: "text" | "id"; value: string }> {
   const pattern = /UFTAGP-[A-Z]{2,4}-\d{3}/g
   const parts: Array<{ type: "text" | "id"; value: string }> = []
@@ -41,9 +40,7 @@ function parseSegments(text: string): Array<{ type: "text" | "id"; value: string
   return parts
 }
 
-// â”€â”€ Render a single inline text segment with bold/italic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function InlineText({ text }: { text: string }) {
-  // Process **bold** and *italic* inline
   const parts: React.ReactNode[] = []
   const pattern = /(\*\*(.+?)\*\*|\*(.+?)\*)/g
   let last = 0
@@ -62,7 +59,6 @@ function InlineText({ text }: { text: string }) {
   return <>{parts}</>
 }
 
-// â”€â”€ Render a line with artifact ID pills and inline markdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function InlineLine({ text }: { text: string }) {
   const segments = parseSegments(text)
   return (
@@ -76,7 +72,6 @@ function InlineLine({ text }: { text: string }) {
   )
 }
 
-// â”€â”€ Markdown block renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MarkdownContent({ text, isRefusal }: { text: string; isRefusal?: boolean }) {
   if (isRefusal) {
     return (
@@ -85,79 +80,42 @@ function MarkdownContent({ text, isRefusal }: { text: string; isRefusal?: boolea
       </span>
     )
   }
-
   const lines = text.split("\n")
   const nodes: React.ReactNode[] = []
   let i = 0
   let key = 0
-
   while (i < lines.length) {
     const line = lines[i]
-
-    // Blank line â€” skip
     if (line.trim() === "") { i++; continue }
-
-    // Numbered list item: "1. text"
     if (/^\d+\.\s/.test(line)) {
       const listItems: React.ReactNode[] = []
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
         const content = lines[i].replace(/^\d+\.\s/, "")
-        listItems.push(
-          <li key={i} className="mb-1">
-            <InlineLine text={content} />
-          </li>
-        )
+        listItems.push(<li key={i} className="mb-1"><InlineLine text={content} /></li>)
         i++
       }
-      nodes.push(
-        <ol key={key++} className="list-decimal list-inside space-y-1 my-2 font-serif text-sm text-near-black leading-relaxed">
-          {listItems}
-        </ol>
-      )
+      nodes.push(<ol key={key++} className="list-decimal list-inside space-y-1 my-2 font-serif text-sm text-near-black leading-relaxed">{listItems}</ol>)
       continue
     }
-
-    // Bullet list item: "- text" or "* text"
     if (/^[-*]\s/.test(line)) {
       const listItems: React.ReactNode[] = []
       while (i < lines.length && /^[-*]\s/.test(lines[i])) {
         const content = lines[i].replace(/^[-*]\s/, "")
-        listItems.push(
-          <li key={i} className="mb-1">
-            <InlineLine text={content} />
-          </li>
-        )
+        listItems.push(<li key={i} className="mb-1"><InlineLine text={content} /></li>)
         i++
       }
-      nodes.push(
-        <ul key={key++} className="list-disc list-inside space-y-1 my-2 font-serif text-sm text-near-black leading-relaxed">
-          {listItems}
-        </ul>
-      )
+      nodes.push(<ul key={key++} className="list-disc list-inside space-y-1 my-2 font-serif text-sm text-near-black leading-relaxed">{listItems}</ul>)
       continue
     }
-
-    // Heading: "## text"
     if (/^#{1,3}\s/.test(line)) {
       const content = line.replace(/^#{1,3}\s/, "")
-      nodes.push(
-        <p key={key++} className="font-serif text-sm font-semibold text-near-black mt-3 mb-1">
-          <InlineLine text={content} />
-        </p>
-      )
+      nodes.push(<p key={key++} className="font-serif text-sm font-semibold text-near-black mt-3 mb-1"><InlineLine text={content} /></p>)
       i++
       continue
     }
-
-    // Regular paragraph
-    nodes.push(
-      <p key={key++} className="font-serif text-sm text-near-black leading-relaxed mb-2">
-        <InlineLine text={line} />
-      </p>
-    )
+    nodes.push(<p key={key++} className="font-serif text-sm text-near-black leading-relaxed mb-2"><InlineLine text={line} /></p>)
     i++
   }
-
   return <>{nodes}</>
 }
 
@@ -169,7 +127,7 @@ export default function NavigatorPage() {
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }) }, [messages])
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }) }, [messages, loading])
 
   async function sendMessage(text: string, path?: ReadingPath, history?: Message[]) {
     const usePath = path ?? activePath
@@ -179,7 +137,6 @@ export default function NavigatorPage() {
     const newHistory = [...useHistory, userMsg]
     setMessages(newHistory)
     setInput("")
-    setLoading(false)
     setStreaming(true)
 
     let assistantText = ""
@@ -222,8 +179,8 @@ export default function NavigatorPage() {
     } catch {
       setMessages([...newHistory, { role: "assistant", content: "Stream error." }])
     } finally {
-      setLoading(false)
       setStreaming(false)
+      setLoading(false)
     }
   }
 
@@ -236,7 +193,12 @@ export default function NavigatorPage() {
           {Object.keys(PATH_LABELS).map((p) => (
             <button
               key={p}
-              onClick={() => { setActivePath(p as ReadingPath); setMessages([]); sendMessage("Begin", p as ReadingPath, []) }}
+              onClick={() => {
+                setActivePath(p as ReadingPath)
+                setMessages([])
+                setLoading(true)
+                sendMessage("Begin", p as ReadingPath, [])
+              }}
               className="w-full text-left border-b border-rule-grey py-5 group bg-transparent hover:bg-transparent"
             >
               <p className="font-serif text-base text-near-black group-hover:text-accent transition-colors">{PATH_LABELS[p]}</p>
@@ -253,7 +215,7 @@ export default function NavigatorPage() {
       <div className="flex items-baseline gap-4 pb-4 border-b border-rule-grey mb-4 shrink-0">
         <h1 className="font-serif text-lg text-near-black">{PATH_LABELS[activePath]}</h1>
         <button onClick={() => { setActivePath(null); setMessages([]) }} className="font-sans text-xs text-mid-grey hover:text-accent">
-          â† paths
+          &larr; paths
         </button>
       </div>
 
@@ -269,7 +231,7 @@ export default function NavigatorPage() {
         {loading && (
           <div className="flex items-center gap-2">
             <span className="font-serif italic text-sm text-mid-grey">Consulting corpus</span>
-            <span className="font-mono text-xs text-mid-grey animate-pulse">···</span>
+            <span className="font-mono text-xs text-mid-grey animate-pulse">...</span>
           </div>
         )}
         <div ref={bottomRef} />
