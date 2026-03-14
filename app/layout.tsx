@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
 export const metadata: Metadata = {
   title: "The Unified Field Theory of Autonomous Governance Project",
   description:
     "Governance doctrine for autonomous systems, anchored in the Conservation of Intent framework.",
 };
-
 export default function RootLayout({
   children,
 }: {
@@ -34,7 +32,7 @@ export default function RootLayout({
             <li><a href="/about"       className="block text-sm text-near-black hover:text-accent py-1">About</a></li>
           </ul>
         </nav>
-        <main className="ml-52 min-h-screen p-8">
+        <main style={{ marginLeft: "13rem", minHeight: "100vh", padding: "2rem" }}>
           {children}
         </main>
       </body>
