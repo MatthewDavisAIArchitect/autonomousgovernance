@@ -1,0 +1,40 @@
+{
+  "artifacts": [
+    {
+      "id": "UFTAGP-SPEC-001",
+      "title": "Governing-Spec",
+      "type": "SPEC",
+      "status": "CANONICAL",
+      "version": "1.0",
+      "canonical": true,
+      "zenodoDoi": null
+    },
+    {
+      "id": "UFTAGP-COI-003",
+      "title": "Vol-III-Doctrine",
+      "type": "COI",
+      "status": "CANONICAL",
+      "version": "1.0",
+      "canonical": true,
+      "zenodoDoi": null
+    },
+    {
+      "id": "UFTAGP-COI-002",
+      "title": "Vol-II-Doctrine",
+      "type": "COI",
+      "status": "CANONICAL",
+      "version": "1.0",
+      "canonical": true,
+      "zenodoDoi": null
+    },
+    {
+      "id": "UFTAGP-COI-001",
+      "title": "Vol-I-Doctrine",
+      "type": "COI",
+      "status": "CANONICAL",
+      "version": "1.0",
+      "canonical": true,
+      "zenodoDoi": null
+    }
+  ]
+}
