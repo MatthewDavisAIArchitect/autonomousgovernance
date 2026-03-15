@@ -24,14 +24,12 @@ function sleep(ms: number) {
 }
 
 async function fetchZenodoCommunityIds(): Promise<string[]> {
-  const url = `https://zenodo.org/api/records?communities=${ZENODO_COMMUNITY}&size=200&sort=mostrecent`
+  const url = `https://zenodo.org/api/communities/${ZENODO_COMMUNITY}/records?size=200&sort=newest`
   const res = await fetch(url, { headers: { Accept: "application/json" } })
   if (!res.ok) {
-    console.error("ZENODO_FETCH_FAIL: " + res.status + " " + res.statusText + " url=" + url)
     return []
   }
   const data = await res.json()
-  console.log("ZENODO_HITS: " + JSON.stringify(Object.keys(data)) + " hits=" + (data.hits && data.hits.hits ? data.hits.hits.length : "undefined"))
   return (data.hits?.hits ?? []).map((r: any) => String(r.id))
 }
 
