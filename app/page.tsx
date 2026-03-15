@@ -51,7 +51,7 @@ export default function Home() {
     <div className="max-w-4xl mx-auto">
 
       <section className="border-b border-rule-grey pb-12 mb-12">
-        <p className="font-serif italic text-mid-grey text-base leading-relaxed max-w-2xl mb-4">
+        <p className="font-serif italic font-bold text-near-black text-base leading-relaxed max-w-2xl mb-4">
           There is no field yet that formally studies the conservation of intent
           under governance pressure. This project is building one.
         </p>
