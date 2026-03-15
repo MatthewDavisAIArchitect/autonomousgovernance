@@ -26,7 +26,10 @@ function sleep(ms: number) {
 async function fetchZenodoCommunityIds(): Promise<string[]> {
   const url = `https://zenodo.org/api/records?communities=${ZENODO_COMMUNITY}&size=200&sort=mostrecent`
   const res = await fetch(url, { headers: { Accept: "application/json" } })
-  if (!res.ok) return []
+  if (!res.ok) {
+    console.error(\ZENODO_FETCH_FAIL: \ \ url=\)
+    return []
+  }
   const data = await res.json()
   return (data.hits?.hits ?? []).map((r: any) => String(r.id))
 }
