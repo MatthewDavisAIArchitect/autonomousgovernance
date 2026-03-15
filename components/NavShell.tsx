@@ -20,7 +20,7 @@ export default function NavShell() {
 
   return (
     <>
-      {/* Mobile hamburger button */}
+      {/* â”€â”€ Mobile hamburger button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <button
         className="md:hidden fixed top-4 left-4 z-50 flex flex-col justify-center gap-[5px] w-7 h-7"
         onClick={() => setOpen(true)}
@@ -32,7 +32,7 @@ export default function NavShell() {
         <span className="block w-full h-px bg-near-black" />
       </button>
 
-      {/* Mobile overlay */}
+      {/* â”€â”€ Mobile overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {open && (
         <div
           className="md:hidden fixed inset-0 bg-near-black/30 z-40"
@@ -41,7 +41,7 @@ export default function NavShell() {
         />
       )}
 
-      {/* Mobile drawer */}
+      {/* â”€â”€ Mobile drawer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <nav
         className={[
           'md:hidden fixed top-0 left-0 h-full w-52 z-50',
@@ -51,12 +51,13 @@ export default function NavShell() {
         ].join(' ')}
         aria-label="Mobile navigation"
       >
+        {/* Close button */}
         <button
           className="absolute top-4 right-4 font-sans text-xs text-mid-grey hover:text-near-black"
           onClick={() => setOpen(false)}
           aria-label="Close navigation"
         >
-          &#x2715;
+          âœ•
         </button>
 
         <div className="px-6 pt-8 pb-6">
@@ -65,6 +66,7 @@ export default function NavShell() {
               UFTAGP
             </p>
           </div>
+
           <ul className="space-y-0">
             {NAV_LINKS.map(({ href, label }) => (
               <li key={href}>
@@ -81,7 +83,7 @@ export default function NavShell() {
         </div>
       </nav>
 
-      {/* Desktop fixed left rail */}
+      {/* â”€â”€ Desktop fixed left rail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <nav
         className="hidden md:flex fixed top-0 left-0 h-full w-52 flex-col bg-off-white border-r border-rule-grey"
         aria-label="Primary navigation"
@@ -95,6 +97,7 @@ export default function NavShell() {
               Autonomous Governance Project
             </p>
           </div>
+
           <ul className="space-y-0 flex-1">
             {NAV_LINKS.map(({ href, label }) => (
               <li key={href}>
@@ -112,3 +115,4 @@ export default function NavShell() {
     </>
   )
 }
+
