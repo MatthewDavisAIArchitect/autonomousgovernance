@@ -124,7 +124,7 @@ export default function AnalyticsPage() {
           {loading ? (
             <div className="border-b border-rule-grey py-4">
               <span className="font-mono text-xs text-mid-grey">
-                Loadingâ€¦
+                Loading…
               </span>
             </div>
           ) : data.topArtifacts.length === 0 ? (
@@ -165,7 +165,7 @@ export default function AnalyticsPage() {
           {loading ? (
             <div className="border-b border-rule-grey py-4">
               <span className="font-mono text-xs text-mid-grey">
-                Loadingâ€¦
+                Loading…
               </span>
             </div>
           ) : data.recentActivity.length === 0 ? (

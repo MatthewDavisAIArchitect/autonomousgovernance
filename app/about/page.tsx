@@ -1,10 +1,10 @@
-﻿// app/about/page.tsx
-// ANTI-PATTERN GUARD: No outcome claims â€” INV-01, INV-12.
+// app/about/page.tsx
+// ANTI-PATTERN GUARD: No outcome claims — INV-01, INV-12.
 // ANTI-PATTERN GUARD: Contact is plain email link only.
 // TODO: Replace positioning statement with verbatim v1.4 text from UFTAGP-SPEC-001.
 import type { Metadata } from "next"
 
-export const metadata: Metadata = { title: "About â€” UFTAGP" }
+export const metadata: Metadata = { title: "About — UFTAGP" }
 
 async function getCommunityCount(): Promise<number> {
   try {
@@ -33,7 +33,7 @@ export default async function AboutPage() {
             Its work is classification-only, non-prescriptive, and architecture-invariant.
           </p>
           <p>
-            The project&#39;s flagship output â€” the Conservation of Intent trilogy â€” defines
+            The project&#39;s flagship output — the Conservation of Intent trilogy — defines
             what counts as conserving or violating an authorized intent-domain, without
             prescribing implementation, enforcement, or outcome claims.
           </p>
@@ -53,7 +53,7 @@ export default async function AboutPage() {
 
       <section className="border-t border-rule-grey pt-6 mb-10">
         <a href="/classify" className="font-sans text-sm text-accent hover:underline">
-          Try the Classification Engine â†’
+          Try the Classification Engine →
         </a>
       </section>
 
