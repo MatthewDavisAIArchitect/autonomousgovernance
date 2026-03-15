@@ -1,6 +1,6 @@
 ﻿"use client";
 // app/analytics/page.tsx
-// Aggregate classification analytics â€” law-review register display.
+// Aggregate classification analytics — law-review register display.
 // ANTI-PATTERN (INV-02): No sealed color classes here. No Chart.js. No individual records.
 import { useEffect, useState } from "react";
 import type { AnalyticsPayload } from "@/app/api/analytics/route";
@@ -61,7 +61,7 @@ export default function AnalyticsPage() {
               Total classifications
             </span>
             <span className="font-mono text-sm text-near-black">
-              {loading ? "â€”" : data.totalClassifications.toLocaleString()}
+              {loading ? "—" : data.totalClassifications.toLocaleString()}
             </span>
           </div>
           <div className="border-b border-rule-grey py-4 flex justify-between items-baseline">
@@ -69,7 +69,7 @@ export default function AnalyticsPage() {
               Refusal rate
             </span>
             <span className="font-mono text-sm text-near-black">
-              {loading ? "â€”" : `${data.refusalRate.toFixed(2)}%`}
+              {loading ? "—" : `${data.refusalRate.toFixed(2)}%`}
             </span>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function AnalyticsPage() {
                 </span>
                 <span className="font-mono text-sm text-near-black tabular-nums">
                   {loading
-                    ? "â€”"
+                    ? "—"
                     : `${(count ?? 0).toLocaleString()}${pct !== null ? `  (${pct}%)` : ""}`}
                 </span>
               </div>
