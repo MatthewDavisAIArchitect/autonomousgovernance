@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { exchangeCodeForOrcid, hashOrcidId } from "@/lib/voting/orcidAuth"
 import { checkZenodoEligibility } from "@/lib/voting/eligibility"
 import { encryptSession, SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session"
+import { createClient } from "@supabase/supabase-js"
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -26,6 +27,12 @@ export async function GET(req: NextRequest) {
   // Hash immediately — raw iD discarded after this line
   const orcidHash = hashOrcidId(rawOrcidId)
 
+  // Upsert member record ? first_seen preserved on conflict, last_active always updated
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  await supabase.rpc("upsert_member", { p_orcid_hash: orcidHash })
   const token = encryptSession({ orcidHash, eligible })
 
   const res = NextResponse.redirect(new URL("/contribute", req.url))
