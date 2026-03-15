@@ -11,7 +11,7 @@ const supabase = createClient(
 export async function GET() {
   const { data, error } = await supabase
     .from("community_corpus_cache")
-    .select("zenodo_id, doi, title, authors, abstract, affiliated_date, vote_count, community_rank")
+    .select("zenodo_id, doi, title, authors, abstract, affiliated_date, vote_count, community_rank, transformation_class, mcr_attached")
     .order("vote_count", { ascending: false })
 
   if (error) {
@@ -27,6 +27,8 @@ export async function GET() {
     affiliatedDate: r.affiliated_date ?? "",
     voteCount: r.vote_count ?? 0,
     communityRank: r.community_rank ?? 0,
+    transformationClass: r.transformation_class ?? 'Undefined_Transformation',
+    mcrAttached: r.mcr_attached ?? false,
   }))
 
   return NextResponse.json(submissions)

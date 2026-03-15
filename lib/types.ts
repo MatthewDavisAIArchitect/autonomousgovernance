@@ -33,6 +33,8 @@ export interface CommunitySubmission {
   affiliatedDate: string;
   voteCount: number;
   communityRank: number;
+  transformationClass: string;
+  mcrAttached: boolean;
 }
 
 export type ReadingPath = "executive" | "architect" | "researcher" | "misread" | "axiom";

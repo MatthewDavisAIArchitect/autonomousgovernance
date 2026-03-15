@@ -1,4 +1,4 @@
-﻿import Link from 'next/link'
+import Link from 'next/link'
 import ArtifactIdPill from '@/components/ui/ArtifactIdPill'
 import { Artifact } from '@/lib/types'
 
