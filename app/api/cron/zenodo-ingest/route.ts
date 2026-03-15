@@ -27,7 +27,7 @@ async function fetchZenodoCommunityIds(): Promise<string[]> {
   const url = `https://zenodo.org/api/records?communities=${ZENODO_COMMUNITY}&size=200&sort=mostrecent`
   const res = await fetch(url, { headers: { Accept: "application/json" } })
   if (!res.ok) {
-    console.error(\ZENODO_FETCH_FAIL: \ \ url=\)
+    console.error("ZENODO_FETCH_FAIL: " + res.status + " " + res.statusText + " url=" + url)
     return []
   }
   const data = await res.json()
