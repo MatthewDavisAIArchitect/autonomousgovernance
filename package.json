@@ -7,7 +7,7 @@
                     "build":  "next build",
                     "start":  "next start",
                     "lint":  "eslint",
-                    "prebuild":  "ts-node --project tsconfig.scripts.json scripts/build-registry-bundle.ts"
+                    "prebuild":  "ts-node --project tsconfig.scripts.json scripts/build-registry-bundle.ts && ts-node --project tsconfig.scripts.json scripts/check-corpus-tokens.ts"
                 },
     "dependencies":  {
                          "@anthropic-ai/sdk":  "^0.78.0",
