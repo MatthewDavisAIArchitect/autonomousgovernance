@@ -55,6 +55,7 @@ export default function Home() {
           There is no field yet that formally studies the conservation of intent
           under governance pressure. This project is building one.
         </p>
+        <p className="font-serif italic text-mid-grey text-sm leading-relaxed max-w-2xl mb-4">The field is early. Contributions that extend, challenge, or apply this doctrine — from architecture, policy, formal methods, or adjacent disciplines — are welcomed and indexed as part of the permanent record.</p>
         <p className="font-serif text-lg text-near-black leading-[1.75] max-w-2xl">
           The Unified Field Theory of Autonomous Governance Project produces
           doctrine that stabilizes the meaning of ethical interpretation under
