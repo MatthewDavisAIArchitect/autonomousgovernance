@@ -6,6 +6,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
+export const dynamic = "force-dynamic"
+
 const ZENODO_COMMUNITY = process.env.ZENODO_COMMUNITY_ID ?? "governance-physics"
 const BATCH_SIZE = 20
 const BATCH_DELAY_MS = 500
@@ -49,8 +51,8 @@ function detectMcr(files: Array<{ key: string }>): boolean {
 
 // Section ref patterns for citation detection
 const CITATION_PATTERNS: Array<{ pattern: RegExp; type: string }> = [
-  { pattern: /A[1-7]/g, type: "axiom" },
-  { pattern: /I[1-7]/g, type: "invariant" },
+  { pattern: /A[1-7]/g, type: "axiom" },
+  { pattern: /I[1-7]/g, type: "invariant" },
   { pattern: /S\d+(?:\.\d+)*/g, type: "section" },
   { pattern: /UFTAGP-[A-Z]{2,4}-\d{3}/g, type: "artifact" },
 ]

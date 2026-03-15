@@ -43,7 +43,7 @@ export default async function RegistryPage() {
             <div key={s.zenodoId} className="border-b border-rule-grey py-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  
+                  <a
                     href={`https://doi.org/${s.doi}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -79,7 +79,7 @@ export default async function RegistryPage() {
               </div>
 
               <div className="mt-2">
-                
+                <a
                   href={`https://doi.org/${s.doi}`}
                   target="_blank"
                   rel="noopener noreferrer"
