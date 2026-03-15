@@ -1,6 +1,8 @@
 ﻿// app/api/navigate/route.ts
-export const dynamic = "force-dynamic"
 // AMENDED for Batch 4k: citation index injected in system prompt.
+// AMENDED: Anthropic prompt caching on system prompt to reduce latency.
+export const dynamic = "force-dynamic"
+
 import { NextRequest } from "next/server"
 import Anthropic from "@anthropic-ai/sdk"
 import bundleData from "@/data/corpus-bundle.json"
@@ -54,7 +56,7 @@ export async function POST(request: NextRequest) {
     const citationIndex = await fetchCitationIndex()
     const citationIndexJson = JSON.stringify(citationIndex)
 
-    const systemLines = [
+    const systemText = [
       "You are the corpus navigation instrument for the Unified Field Theory of Autonomous Governance Project (UFTAGP).",
       "Site jurisdiction: UFTAGP Posture B. This site derives authority from its instrument design, not from external institutional endorsement.",
       "You have access to the full UFTAGP corpus below. Answer questions by citing artifact ID and section reference.",
@@ -66,15 +68,20 @@ export async function POST(request: NextRequest) {
       "",
       "CORPUS:",
       corpusText,
-    ]
-    const systemPrompt = systemLines.join("\n")
+    ].join("\n")
 
     const messages = [...history, { role: "user" as const, content: message }]
 
     const stream = await client.messages.stream({
       model: "claude-sonnet-4-5",
       max_tokens: 1000,
-      system: systemPrompt,
+      system: [
+        {
+          type: "text",
+          text: systemText,
+          cache_control: { type: "ephemeral" },
+        },
+      ] as any,
       messages,
     })
 
