@@ -1,6 +1,18 @@
+"""
+patch-constants-phase3.py
+Phase 3 — add PATH_SECTIONS to lib/constants.ts
+Governing Spec: UFTAGP-SPEC-001 v1.6
+Pattern: writes complete file — no regex replacement on TypeScript.
+"""
+
+import os
+
+TARGET = os.path.join("lib", "constants.ts")
+
+CONTENT = """\
 import { ArtifactType, ClassificationLabel, ReadingPath } from "@/lib/types";
 
-export const UFTAGP_ID_REGEX = /^UFTAGP-[A-Z]{2,4}-\d{3}$/;
+export const UFTAGP_ID_REGEX = /^UFTAGP-[A-Z]{2,4}-\\d{3}$/;
 
 export const ARTIFACT_TYPES: ArtifactType[] = ["COI", "WP", "SPEC", "AXM", "ONT"];
 
@@ -47,3 +59,14 @@ export const PATH_SECTIONS: Record<string, string[]> = {
     "COI-003:failure-vs-refusal",
   ],
 };
+"""
+
+
+def main():
+    with open(TARGET, "w", encoding="utf-8") as f:
+        f.write(CONTENT)
+    print(f"Patched {TARGET} — PATH_SECTIONS added ({len(CONTENT.splitlines())} lines)")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,3 +1,19 @@
+"""
+patch-navigate-phase3.py
+Phase 3 — rewrite buildCorpusText in app/api/navigate/route.ts
+- Replaces PATH_CONTEXT_PREFIXES import with PATH_SECTIONS
+- Hard-filters corpus sections to PATH_SECTIONS[path] only
+- Adds system prompt instruction: name correct path and decline if question
+  requires sections outside the reading path
+Governing Spec: UFTAGP-SPEC-001 v1.6
+Pattern: writes complete file — no regex replacement on TypeScript.
+"""
+
+import os
+
+TARGET = os.path.join("app", "api", "navigate", "route.ts")
+
+CONTENT = """\
 // app/api/navigate/route.ts
 // AMENDED for Batch 4k: citation index injected in system prompt.
 // AMENDED: Anthropic prompt caching on system prompt to reduce latency.
@@ -53,12 +69,12 @@ function buildCorpusText(path: ReadingPath): string {
       if (filtered.length === 0) return null
 
       const sectionText = filtered
-        .map((s: any) => "[" + s.ref + "] " + s.heading + "\n" + (s.text ?? ""))
-        .join("\n\n")
-      return "=== " + artifact.id + ": " + artifact.title + " ===\n" + sectionText
+        .map((s: any) => "[" + s.ref + "] " + s.heading + "\\n" + (s.text ?? ""))
+        .join("\\n\\n")
+      return "=== " + artifact.id + ": " + artifact.title + " ===\\n" + sectionText
     })
     .filter(Boolean)
-    .join("\n\n")
+    .join("\\n\\n")
 }
 
 export async function POST(request: NextRequest) {
@@ -82,7 +98,7 @@ export async function POST(request: NextRequest) {
       "",
       "CORPUS:",
       corpusText,
-    ].join("\n")
+    ].join("\\n")
 
     const messages = [...history, { role: "user" as const, content: message }]
 
@@ -105,12 +121,12 @@ export async function POST(request: NextRequest) {
         try {
           for await (const chunk of stream) {
             if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
-              controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "token", text: chunk.delta.text }) + "\n\n"))
+              controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "token", text: chunk.delta.text }) + "\\n\\n"))
             }
           }
-          controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "done" }) + "\n\n"))
+          controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "done" }) + "\\n\\n"))
         } catch (e) {
-          controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "error", text: String(e) }) + "\n\n"))
+          controller.enqueue(encoder.encode("data: " + JSON.stringify({ type: "error", text: String(e) }) + "\\n\\n"))
         } finally {
           controller.close()
         }
@@ -132,3 +148,14 @@ export async function POST(request: NextRequest) {
     })
   }
 }
+"""
+
+
+def main():
+    with open(TARGET, "w", encoding="utf-8") as f:
+        f.write(CONTENT)
+    print(f"Patched {TARGET} — PATH_SECTIONS hard-filter + path instruction ({len(CONTENT.splitlines())} lines)")
+
+
+if __name__ == "__main__":
+    main()
