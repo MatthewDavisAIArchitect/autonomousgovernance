@@ -18,7 +18,8 @@
     },
     {
       "id": "UFTAGP-COI-003",
-      "title": "Conservation of Intent â€” Volume III: Interpretation Saturation and Limits",
+      "title": "Conservation of Intent — Volume III: Interpretation Saturation and Limits",
+      "curated": true,
       "sections": [
         {
           "ref": "saturation-definition",
@@ -45,12 +46,11 @@
           "heading": "Closure Integrity for Enterprise Use",
           "text": "Before any version of Volume III is represented as stable, citable, or complete within this trilogy, the following closure integrity conditions SHALL hold.\n\nClassification-only seal remains intact: Admissible outputs remain limited to Conserving, Non-Conserving, and Refusal (Terminal). These labels remain classifications only. They SHALL NOT be reframed as scores, rankings, maturity levels, certifications, compliance verdicts, or performance claims.\n\nRefusal Remains Terminal: Refusal SHALL NOT be reframed as partial compliance, degraded conformance, a temporary state, \"best effort,\" a mitigation posture, or a maturity gap. Where scope is exceeded, the doctrine terminates in Refusal (Terminal). Refusal is terminal.\n\nBinding Non-Claims Remain Binding: No revision may delete, soften, relativize, or \"contextually override\" the trilogy's binding non-claims. The doctrine SHALL NOT be represented as authorizing mechanisms, interfaces, enforcement posture, monitoring/logging/telemetry, scoring, certification, or outcome guarantees.\n\nNo Mechanism / Interface / Enforcement / Outcome Authority is Introduced: No language may be introduced that prescribes, implies, or smuggles in operational obligation, implementation duty, interface coupling, enforcement regimes, sanctions posture, verification-as-proof, certification posture, or any claim that conserving classification implies ethical achievement, safety assurance, alignment verification, or equivalent outcome capture.\n\nNo Inference Authority is Introduced: Intent remains sealed to authorized representations only. Identity inference, mental-state inference, behavioral inference, preference inference, and any proxy substitution remain refused. Where prohibited observables would be required to sustain interpretation, the admissible posture is Refusal (Terminal).\n\nCitation Posture Remains Fully Aligned to the Citation and Use Contract: Lawful citation remains bounded to canonical non-prescriptive classification-only semantics. No citation form may be introduced that enables mandate capture, mechanism capture, enforcement capture, outcome capture, or inference laundering.\n\nCross-Volume Term Integrity is Preserved: Sealed terms, definitions, and refusal semantics remain consistent with Volumes I-II. No silent synonym drift, definitional drift, or scope drift is permitted. Where wording changes occur, they SHALL remain tightening (allowed) and SHALL NOT expand jurisdiction. If any closure integrity condition fails, the version SHALL NOT be represented as a faithful instantiation of this trilogy's doctrine set. The correct posture is HOLD on status claims and Refusal (Terminal) where application would otherwise exceed jurisdiction.\n\nFor enterprise readers: The trilogy is written to remain stable under institutional pressure. It prevents ethical language from becoming a mechanism mandate, an enforcement weapon, a reputational assurance device, or an inference license. Its value is lawful citability: clear meaning, bounded scope, and terminal refusal where scope is exceeded. Executives who must govern without letting ethical language inflate into mandate, enforcement posture, liability theater, or reputational weapons will find in this closure layer the stable language that resists capture while retaining terms narrow enough to be defensible. Architects who must build systems whose semantics do not silently drift across models, stacks, and deployment patterns will find the semantic constraint surface required to remain architecture-invariant: this doctrine remains stable across models, stacks, and deployment patterns precisely because it refuses to become a mechanism or an outcome claim."
         }
-      ],
-      "curated": true
+      ]
     },
     {
       "id": "UFTAGP-COI-002",
-      "title": "Conservation of Intent â€” Volume II: Intent-Domain Ontology + Transformational Relations",
+      "title": "Conservation of Intent — Volume II: Intent-Domain Ontology + Transformational Relations",
       "curated": true,
       "sections": [
         {
@@ -82,7 +82,7 @@
     },
     {
       "id": "UFTAGP-COI-001",
-      "title": "Conservation of Intent â€” Volume I: Axioms, Invariants + Admissibility",
+      "title": "Conservation of Intent — Volume I: Axioms, Invariants + Admissibility",
       "curated": true,
       "sections": [
         {
