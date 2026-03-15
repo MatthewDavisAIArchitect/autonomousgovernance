@@ -10,9 +10,9 @@ const SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON!);
 // â”€â”€ Canonical title map â€” overrides Drive folder/file names â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TITLE_MAP: Record<string, string> = {
   "UFTAGP-SPEC-001": "Governing Specification",
-  "UFTAGP-COI-001": "Conservation of Intent â€” Volume I: Axioms, Invariants + Admissibility",
-  "UFTAGP-COI-002": "Conservation of Intent â€” Volume II: Intent-Domain Ontology + Transformational Relations",
-  "UFTAGP-COI-003": "Conservation of Intent â€” Volume III: Interpretation Saturation and Limits",
+  "UFTAGP-COI-001": "Conservation of Intent \u2014 Volume I: Axioms, Invariants + Admissibility",
+  "UFTAGP-COI-002": "Conservation of Intent \u2014 Volume II: Intent-Domain Ontology + Transformational Relations",
+  "UFTAGP-COI-003": "Conservation of Intent \u2014 Volume III: Interpretation Saturation and Limits",
 };
 
 // â”€â”€ Version map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
