@@ -1,4 +1,4 @@
-require("dotenv").config({ path: ".env.local" });
+﻿require("dotenv").config({ path: ".env.local" });
 // @ts-ignore
 import { GoogleAuth } from "google-auth-library";
 import * as fs from "fs";
@@ -7,15 +7,15 @@ import * as path from "path";
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID!;
 const SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON!);
 
-// ── Canonical title map — overrides Drive folder/file names ──────────────────
+// â”€â”€ Canonical title map â€” overrides Drive folder/file names â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TITLE_MAP: Record<string, string> = {
   "UFTAGP-SPEC-001": "Governing Specification",
-  "UFTAGP-COI-001": "Conservation of Intent — Volume I: Axioms, Invariants + Admissibility",
-  "UFTAGP-COI-002": "Conservation of Intent — Volume II: Intent-Domain Ontology + Transformational Relations",
-  "UFTAGP-COI-003": "Conservation of Intent — Volume III: Interpretation Saturation and Limits",
+  "UFTAGP-COI-001": "Conservation of Intent â€” Volume I: Axioms, Invariants + Admissibility",
+  "UFTAGP-COI-002": "Conservation of Intent â€” Volume II: Intent-Domain Ontology + Transformational Relations",
+  "UFTAGP-COI-003": "Conservation of Intent â€” Volume III: Interpretation Saturation and Limits",
 };
 
-// ── Version map ───────────────────────────────────────────────────────────────
+// â”€â”€ Version map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const VERSION_MAP: Record<string, string> = {
   "UFTAGP-SPEC-001": "1.6",
   "UFTAGP-COI-001": "1.0",
@@ -102,7 +102,30 @@ function chunkBySections(text: string): { ref: string; heading: string; text: st
   return sections;
 }
 
+// â”€â”€ Load existing corpus bundle and build preservation map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Artifacts with curated:true AND sections.length > 1 are preserved as-is.
+// UFTAGP-SPEC-001 must never be flagged curated â€” it is always Drive-sourced.
+function loadExistingBundle(): Map<string, any> {
+  const bundlePath = path.join("data", "corpus-bundle.json");
+  const existingMap = new Map<string, any>();
+  if (!fs.existsSync(bundlePath)) return existingMap;
+  try {
+    const raw = fs.readFileSync(bundlePath, "utf-8");
+    const parsed = JSON.parse(raw);
+    for (const artifact of parsed.artifacts ?? []) {
+      existingMap.set(artifact.id, artifact);
+    }
+    console.log(`Loaded ${existingMap.size} existing artifacts from corpus-bundle.json`);
+  } catch (err) {
+    console.warn("Could not parse existing corpus-bundle.json â€” will rebuild from Drive:", err);
+  }
+  return existingMap;
+}
+
 async function main() {
+  // Phase 1: load existing bundle before any Drive work
+  const existingArtifacts = loadExistingBundle();
+
   const token = await getAuthToken();
   const files = await listFiles(token, FOLDER_ID);
 
@@ -117,14 +140,40 @@ async function main() {
   for (const file of filesToProcess) {
     const artifactId = parseArtifactId(file.name);
     if (!artifactId) { console.log(`Skipping ${file.name} - no UFTAGP ID prefix`); continue; }
+
+    const title = TITLE_MAP[artifactId] ?? file.name.replace(artifactId + "_", "").replace(/-/g, " ");
+    const version = VERSION_MAP[artifactId] ?? "1.0";
+
+    // â”€â”€ Curated preservation gate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Preserve if: curated:true AND sections.length > 1.
+    // UFTAGP-SPEC-001 is explicitly excluded â€” always re-extracted from Drive.
+    const existing = existingArtifacts.get(artifactId);
+    if (
+      artifactId !== "UFTAGP-SPEC-001" &&
+      existing?.curated === true &&
+      Array.isArray(existing?.sections) &&
+      existing.sections.length > 1
+    ) {
+      console.log(`Preserving ${artifactId} â€” curated:true, ${existing.sections.length} sections (Drive extraction skipped)`);
+      artifacts.push({ id: artifactId, title, curated: true, sections: existing.sections });
+      manifest.push({
+        id: artifactId,
+        title,
+        type: artifactId.split("-")[1],
+        status: "CANONICAL",
+        version,
+        canonical: true,
+        zenodoDoi: null,
+      });
+      continue;
+    }
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
     console.log(`Processing ${artifactId} from ${file.name}`);
     const text = await exportFileAsText(token, file.id);
     console.log(`  Extracted ${text.length} characters`);
     const sections = chunkBySections(text);
     console.log(`  Found ${sections.length} sections`);
-
-    const title = TITLE_MAP[artifactId] ?? file.name.replace(artifactId + "_", "").replace(/-/g, " ");
-    const version = VERSION_MAP[artifactId] ?? "1.0";
 
     artifacts.push({ id: artifactId, title, sections });
     manifest.push({
@@ -144,3 +193,4 @@ async function main() {
 }
 
 main().catch(console.error);
+
